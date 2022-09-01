@@ -1,0 +1,9 @@
+@use 'phone';
+
+header {
+  color: orange;
+
+  @include phone.phone {
+    color: red;
+  }
+}

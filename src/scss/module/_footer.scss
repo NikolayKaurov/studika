@@ -1,0 +1,11 @@
+@use 'phone';
+
+footer {
+  text-transform: lowercase;
+  background-clip: text;
+  color: red;
+
+  @include phone.phone {
+    color: black;
+  }
+}
