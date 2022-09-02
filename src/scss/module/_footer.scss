@@ -3,7 +3,7 @@
 footer {
   text-transform: lowercase;
   background-clip: text;
-  color: red;
+  color: rgb(31 32 65);
 
   @include phone.phone {
     color: black;
