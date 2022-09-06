@@ -1,11 +1,11 @@
 extends layout/page
 
-include mixin/header
-include mixin/footer
+include mixin/studika-header
+include mixin/city
+include mixin/logo
 
 block page
-  +header('Шапка')
-  +footer('FOOTER')
-
-
-
+  +studika-header
+    +city
+  img(src="img/user.png" alt="Пользователь" width="300px")
+  +logo

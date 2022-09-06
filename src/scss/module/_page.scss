@@ -1,17 +1,46 @@
-@use 'phone';
+@font-face {
+  font-family: openSans;
+  src:
+    url('../font/openSans.woff2') format('woff2'),
+    url('../font/openSans.woff') format('woff'),
+    url('../font/openSans.ttf') format('ttf'),
+    url('../font/openSans.eot') format('eot');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: terminus;
+  src:
+    url('../font/terminus.woff2') format('woff2'),
+    url('../font/terminus.woff') format('woff'),
+    url('../font/terminus.ttf') format('ttf'),
+    url('../font/terminus.eot') format('eot');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: studika;
+  src:
+    url('../font/studika.woff2') format('woff2'),
+    url('../font/studika.woff') format('woff'),
+    url('../font/studika.ttf') format('ttf'),
+    url('../font/studika.eot') format('eot');
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
 
 html {
-  font-size: 32px;
-  font-family: Arial, sans-serif;
-  line-height: 1.5;
-  color: rgba(31 32 65 / 75%);
-  background-color: white;
+  color: #222;
+  font-size: 14px;
+  font-family: openSans, Impact, cursive;
+  line-height: 22px;
+  background-color: #f1f1f1;
 }
 
 body {
   margin: 0;
-
-  @include phone.phone {
-    background-color: cyan;
-  }
+  height: 100vh;
 }

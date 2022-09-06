@@ -9,6 +9,7 @@ const pug = () => {
       )),
     }))
     .pipe($.gp.pug($.config.pug))
+    .pipe($.gp.webpHtml())
     .pipe($.gulp.dest($.path.pug.dest))
     .pipe($.browserSync.stream());
 }

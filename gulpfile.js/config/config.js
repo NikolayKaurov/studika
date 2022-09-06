@@ -15,4 +15,16 @@ module.exports = {
       filename: 'script.min.js',
     },
   },
+
+  img: {
+    verbose: true,
+  },
+
+  font: {
+    formats: [
+      'ttf',
+      'woff',
+      'eot',
+    ],
+  },
 }

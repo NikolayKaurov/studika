@@ -21,4 +21,16 @@ module.exports = {
     watch: `${src}/js/**/*.js`,
     dest: `${dest}/js`,
   },
+
+  img: {
+    src: `${src}/img/*.{jpg,jpeg,png,gif,svg}`,
+    watch: `${src}/img/**/*.{jpg,jpeg,png,gif,svg}`,
+    dest: `${dest}/img`,
+  },
+
+  font: {
+    src: `${src}/font/*.{eot,ttf,otf,otc,ttc,woff,woff2,svg}`,
+    watch: `${src}/font/**/*.{eot,ttf,otf,otc,ttc,woff,woff2,svg}`,
+    dest: `${dest}/font`,
+  },
 }
