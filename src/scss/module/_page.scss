@@ -10,13 +10,24 @@
 }
 
 @font-face {
-  font-family: terminus;
+  font-family: formular;
   src:
-    url('../font/terminus.woff2') format('woff2'),
-    url('../font/terminus.woff') format('woff'),
-    url('../font/terminus.ttf') format('ttf'),
-    url('../font/terminus.eot') format('eot');
+          url('../font/formular.woff2') format('woff2'),
+          url('../font/formular.woff') format('woff'),
+          url('../font/formular.ttf') format('ttf'),
+          url('../font/formular.eot') format('eot');
   font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: formular;
+  src:
+          url('../font/formular-medium.woff2') format('woff2'),
+          url('../font/formular-medium.woff') format('woff'),
+          url('../font/formular-medium.ttf') format('ttf'),
+          url('../font/formular-medium.eot') format('eot');
+  font-weight: 500;
   font-style: normal;
 }
 
@@ -35,12 +46,17 @@
 html {
   color: #222;
   font-size: 14px;
-  font-family: openSans, Impact, cursive;
+  font-family: openSans, Arial, sans-serif;
   line-height: 22px;
   background-color: #f1f1f1;
 }
 
 body {
   margin: 0;
-  height: 100vh;
+
+  // temp
+  height: 150vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

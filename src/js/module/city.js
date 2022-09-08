@@ -1,6 +1,6 @@
 const defaultCity = 'Москва';
 
-const list = [
+const listCity = [
   {
     name: 'Россия',
   },
@@ -121,7 +121,7 @@ const list = [
 ];
 
 class City {
-  city;
+  wrapper;
 
   drop;
 
@@ -129,45 +129,127 @@ class City {
 
   list;
 
-  constructor(city) {
-    this.city = city;
-    this.drop = city.querySelector('.js-city__drop');
-    this.down = city.querySelector('.js-city__down');
-    this.list = city.querySelector('.js-city__list');
+  tape;
+
+  constructor(wrapper) {
+    this.wrapper = wrapper;
+  }
+
+  init() {
+    this.drop = this.wrapper.querySelector('.js-city__drop');
+    this.down = this.wrapper.querySelector('.js-city__down');
+    this.list = this.wrapper.querySelector('.js-city__list');
 
     this.drop.innerText = defaultCity;
 
-    const tape = document.createElement('div');
-    tape.classList.add('city__tape', 'js-city__tape');
+    const open = new Open(this);
+    const scroll = new Scroll(this);
 
-    list.forEach((item) => {
-      const listItem = document.createElement('div');
-      listItem.classList.add('city__list-item', 'js-city__list-item');
+    this.wrapper.addEventListener('mousedown', open);
+    this.wrapper.addEventListener('focusin', open);
+    this.down.addEventListener('mousedown', stop);
+    this.list.addEventListener('scroll', scroll);
 
-      const name = document.createElement('span');
-      name.classList.add('city__list-item-name', 'js-city__list-item-name');
-      name.innerText = item.name;
+    this.tape = getTape(listCity);
 
-      listItem.appendChild(name);
-
-      if (item.region !== undefined) {
-        const region = document.createElement('span');
-        region.classList.add('city__list-item-region', 'js-city__list-item-region');
-        region.innerText = item.region;
-
-        listItem.appendChild(region);
-      }
-
-      tape.appendChild(listItem);
-    });
-
-    this.list.appendChild(tape);
+    this.list.appendChild(this.tape);
   }
+}
+
+function Open(city) {
+  this.city = city;
+
+  this.handleEvent = () => {
+    const { wrapper } = this.city;
+
+    wrapper.removeEventListener('mousedown', this);
+    wrapper.removeEventListener('focusin', this);
+
+    wrapper.classList.add('city_open', 'city_just-now-open');
+
+    const close = new Close(this.city);
+
+    document.addEventListener('mousedown', close);
+    document.addEventListener('focusin', close);
+  };
+}
+
+function Scroll(city) {
+  this.city = city;
+
+  this.handleEvent = () => {
+    const { list, tape } = this.city;
+
+    /* console.log(list.scrollTop);
+    console.log(list.offsetHeight); */
+    console.log(list.scrollTop / (tape.offsetHeight - list.offsetHeight));
+  };
+}
+
+function Close(city) {
+  this.city = city;
+
+  this.handleEvent = () => {
+    const { wrapper, down } = this.city;
+
+    if (wrapper.classList.contains('city_just-now-open')) {
+      wrapper.classList.remove('city_just-now-open');
+
+      down.addEventListener('focusin', stop);
+
+      return;
+    }
+
+    document.removeEventListener('mousedown', this);
+    document.removeEventListener('focusin', this);
+
+    wrapper.classList.remove('city_open');
+
+    down.removeEventListener('focusin', stop);
+
+    const open = new Open(this.city);
+
+    wrapper.addEventListener('mousedown', open);
+    wrapper.addEventListener('focusin', open);
+  };
+}
+
+function getTape(list) {
+  const tape = document.createElement('div');
+  tape.classList.add('city__tape', 'js-city__tape');
+
+  list.forEach((item) => {
+    const listItem = document.createElement('div');
+    listItem.classList.add('city__list-item', 'js-city__list-item');
+
+    const name = document.createElement('span');
+    name.classList.add('city__list-item-name', 'js-city__list-item-name');
+    name.innerText = item.name;
+
+    listItem.appendChild(name);
+
+    if (item.region !== undefined) {
+      const region = document.createElement('span');
+      region.classList.add('city__list-item-region', 'js-city__list-item-region');
+      region.innerText = item.region;
+
+      listItem.appendChild(region);
+    }
+
+    tape.appendChild(listItem);
+  });
+
+  return tape;
+}
+
+function stop(event) {
+  event.stopPropagation();
 }
 
 Array.from(document.querySelectorAll('.js-city'))
   .forEach(
-    (city) => {
-      const jsCity = new City(city);
+    (wrapper) => {
+      const city = new City(wrapper);
+      city.init();
     },
   );
