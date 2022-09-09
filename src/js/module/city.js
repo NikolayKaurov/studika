@@ -1,5 +1,7 @@
 const defaultCity = 'Москва';
 
+const listMinHeight = 64; // duplicated in css
+
 const listCity = [
   {
     name: 'Россия',
@@ -118,6 +120,97 @@ const listCity = [
     name: 'Колывань',
     region: 'Новосибирская область',
   },
+  {
+    name: 'Красноярский край',
+  },
+  {
+    name: 'Красноярск',
+    region: 'Красноярский край',
+  },
+  {
+    name: 'Бородино',
+    region: 'Красноярский край',
+  },
+  {
+    name: 'Ачинск',
+    region: 'Красноярский край',
+  },
+  {
+    name: 'Железногорск',
+    region: 'Красноярский край',
+  },
+  {
+    name: 'Норильск',
+    region: 'Красноярский край',
+  },
+  {
+    name: 'Лесосибирск',
+    region: 'Красноярский край',
+  },
+  {
+    name: 'Дивногорск',
+    region: 'Красноярский край',
+  },
+  {
+    name: 'Шарыпово',
+    region: 'Красноярский край',
+  },
+  {
+    name: 'Енисейск',
+    region: 'Красноярский край',
+  },
+  {
+    name: 'Боготол',
+    region: 'Красноярский край',
+  },
+  {
+    name: 'Сосновоборск',
+    region: 'Красноярский край',
+  },
+  {
+    name: 'Назарово',
+    region: 'Красноярский край',
+  },
+  {
+    name: 'Дудинка',
+    region: 'Красноярский край',
+  },
+  {
+    name: 'Артемовск',
+    region: 'Красноярский край',
+  },
+  {
+    name: 'Игарка',
+    region: 'Красноярский край',
+  },
+  {
+    name: 'Кодинск',
+    region: 'Красноярский край',
+  },
+  {
+    name: 'Зеленогорск',
+    region: 'Красноярский край',
+  },
+  {
+    name: 'Заозерный',
+    region: 'Красноярский край',
+  },
+  {
+    name: 'Минусинск',
+    region: 'Красноярский край',
+  },
+  {
+    name: 'Ужур',
+    region: 'Красноярский край',
+  },
+  {
+    name: 'Канск',
+    region: 'Красноярский край',
+  },
+  {
+    name: 'Уяр',
+    region: 'Красноярский край',
+  },
 ];
 
 class City {
@@ -127,9 +220,17 @@ class City {
 
   down;
 
+  input;
+
+  cancel;
+
   list;
 
   tape;
+
+  thumb;
+
+  dragData;
 
   constructor(wrapper) {
     this.wrapper = wrapper;
@@ -138,21 +239,74 @@ class City {
   init() {
     this.drop = this.wrapper.querySelector('.js-city__drop');
     this.down = this.wrapper.querySelector('.js-city__down');
+    this.input = this.wrapper.querySelector('.js-city__input');
+    this.cancel = this.wrapper.querySelector('.js-city__cancel');
     this.list = this.wrapper.querySelector('.js-city__list');
+    this.thumb = this.wrapper.querySelector('.js-city__thumb');
+    this.dragData = {};
 
     this.drop.innerText = defaultCity;
 
     const open = new Open(this);
     const scroll = new Scroll(this);
+    const showThumb = new ShowThumb(this);
+    const hideThumb = new HideThumb(this);
+    const startDrag = new StartDrag(this);
+    const input = new Input(this);
+    const clear = new Clear(this);
 
-    this.wrapper.addEventListener('mousedown', open);
+    this.wrapper.addEventListener('click', open);
     this.wrapper.addEventListener('focusin', open);
-    this.down.addEventListener('mousedown', stop);
+    this.down.addEventListener('click', stop);
     this.list.addEventListener('scroll', scroll);
+    this.list.addEventListener('mouseover', showThumb);
+    this.list.addEventListener('mouseout', hideThumb);
+    this.thumb.addEventListener('mousedown', startDrag);
+    this.thumb.addEventListener('pointerdown', startDrag);
+    this.thumb.addEventListener('dragstart', prevent);
+    this.input.addEventListener('input', input);
+    this.cancel.addEventListener('click', clear);
+  }
 
-    this.tape = getTape(listCity);
+  updateTape(list) {
+    const keyRegExp = new RegExp(this.input.value, 'i');
 
-    this.list.appendChild(this.tape);
+    const tape = document.createElement('div');
+    tape.classList.add('city__tape', 'js-city__tape');
+
+    list.forEach((item) => {
+      const keyString = item.name.match(keyRegExp);
+
+      if (keyString === null) {
+        return;
+      }
+
+      const listItem = document.createElement('div');
+      listItem.classList.add('city__list-item', 'js-city__list-item');
+
+      const name = document.createElement('span');
+      name.classList.add('city__list-item-name', 'js-city__list-item-name');
+      name.innerHTML = item.name.replace(keyRegExp, `<span class="city__key">${keyString[0]}</span>`);
+
+      listItem.appendChild(name);
+
+      if (item.region !== undefined) {
+        const region = document.createElement('span');
+        region.classList.add('city__list-item-region', 'js-city__list-item-region');
+        region.innerText = item.region;
+
+        listItem.appendChild(region);
+      }
+
+      tape.appendChild(listItem);
+    });
+
+    this.tape = tape;
+
+    this.list.innerHTML = '';
+    this.list.appendChild(tape);
+
+    this.thumb.style.height = `${this.list.offsetHeight - listMinHeight}px`;
   }
 }
 
@@ -162,27 +316,17 @@ function Open(city) {
   this.handleEvent = () => {
     const { wrapper } = this.city;
 
-    wrapper.removeEventListener('mousedown', this);
+    this.city.updateTape(listCity);
+
+    wrapper.removeEventListener('click', this);
     wrapper.removeEventListener('focusin', this);
 
     wrapper.classList.add('city_open', 'city_just-now-open');
 
     const close = new Close(this.city);
 
-    document.addEventListener('mousedown', close);
+    document.addEventListener('click', close);
     document.addEventListener('focusin', close);
-  };
-}
-
-function Scroll(city) {
-  this.city = city;
-
-  this.handleEvent = () => {
-    const { list, tape } = this.city;
-
-    /* console.log(list.scrollTop);
-    console.log(list.offsetHeight); */
-    console.log(list.scrollTop / (tape.offsetHeight - list.offsetHeight));
   };
 }
 
@@ -190,17 +334,19 @@ function Close(city) {
   this.city = city;
 
   this.handleEvent = () => {
-    const { wrapper, down } = this.city;
+    const { wrapper, down, input } = this.city;
 
     if (wrapper.classList.contains('city_just-now-open')) {
       wrapper.classList.remove('city_just-now-open');
 
       down.addEventListener('focusin', stop);
 
+      input.focus();
+
       return;
     }
 
-    document.removeEventListener('mousedown', this);
+    document.removeEventListener('click', this);
     document.removeEventListener('focusin', this);
 
     wrapper.classList.remove('city_open');
@@ -209,41 +355,162 @@ function Close(city) {
 
     const open = new Open(this.city);
 
-    wrapper.addEventListener('mousedown', open);
+    wrapper.addEventListener('click', open);
     wrapper.addEventListener('focusin', open);
   };
 }
 
-function getTape(list) {
-  const tape = document.createElement('div');
-  tape.classList.add('city__tape', 'js-city__tape');
+function Scroll(city) {
+  this.city = city;
 
-  list.forEach((item) => {
-    const listItem = document.createElement('div');
-    listItem.classList.add('city__list-item', 'js-city__list-item');
+  this.handleEvent = () => {
+    const { list, tape, thumb } = this.city;
 
-    const name = document.createElement('span');
-    name.classList.add('city__list-item-name', 'js-city__list-item-name');
-    name.innerText = item.name;
+    thumb.style.transform = `translateY(${(list.scrollTop * 100) / (tape.offsetHeight - list.offsetHeight)}%)`;
+  };
+}
 
-    listItem.appendChild(name);
+function ShowThumb(city) {
+  this.city = city;
 
-    if (item.region !== undefined) {
-      const region = document.createElement('span');
-      region.classList.add('city__list-item-region', 'js-city__list-item-region');
-      region.innerText = item.region;
+  this.handleEvent = () => {
+    const { thumb } = this.city;
 
-      listItem.appendChild(region);
+    thumb.classList.add('city__thumb_visible');
+  };
+}
+
+function HideThumb(city) {
+  this.city = city;
+
+  this.handleEvent = () => {
+    const { thumb } = this.city;
+
+    thumb.classList.remove('city__thumb_visible');
+  };
+}
+
+function StartDrag(city) {
+  this.city = city;
+
+  this.handleEvent = (event) => {
+    const { list, thumb, dragData } = this.city;
+
+    thumb.removeEventListener('mousedown', this);
+    thumb.removeEventListener('pointerdown', this);
+
+    const listPosition = list.getBoundingClientRect().top;
+    const thumbSize = thumb.clientHeight;
+    const thumbPosition = thumb.getBoundingClientRect().top;
+
+    const grabPoint = event.clientY - thumbPosition;
+    dragData.minRestriction = grabPoint + listPosition;
+    dragData.maxRestriction = dragData.minRestriction + thumbSize;
+    dragData.size = thumbSize;
+
+    dragData.drag = new Drag(this.city);
+    dragData.endDrag = new EndDrag(this.city);
+
+    document.addEventListener('mousemove', dragData.drag);
+    document.addEventListener('pointermove', dragData.drag);
+    document.addEventListener('mouseup', dragData.endDrag);
+    document.addEventListener('pointerup', dragData.endDrag);
+
+    thumb.classList.add('city__thumb_draggable');
+  };
+}
+
+function Drag(city) {
+  this.city = city;
+
+  this.handleEvent = (event) => {
+    const {
+      list,
+      tape,
+      thumb,
+      dragData,
+    } = this.city;
+
+    const {
+      minRestriction,
+      maxRestriction,
+      size,
+    } = dragData;
+
+    const { clientY } = event;
+
+    if (clientY < minRestriction) {
+      dragData.innerOffset = 0;
+    } else if (clientY > maxRestriction) {
+      dragData.innerOffset = size;
+    } else {
+      dragData.innerOffset = clientY - minRestriction;
     }
 
-    tape.appendChild(listItem);
-  });
+    thumb.style.transform = `translateY(${(dragData.innerOffset * 100) / size}%)`;
+    list.scrollTop = ((tape.offsetHeight - list.offsetHeight) * dragData.innerOffset) / size;
+  };
+}
 
-  return tape;
+function EndDrag(city) {
+  this.city = city;
+
+  this.handleEvent = () => {
+    const { input, thumb, dragData } = this.city;
+
+    document.removeEventListener('mousemove', dragData.drag);
+    document.removeEventListener('pointermove', dragData.drag);
+    document.removeEventListener('mouseup', dragData.endDrag);
+    document.removeEventListener('pointerup', dragData.endDrag);
+
+    const startDrag = new StartDrag(this.city);
+
+    thumb.addEventListener('mousedown', startDrag);
+    thumb.addEventListener('pointerdown', startDrag);
+
+    thumb.classList.remove('city__thumb_draggable');
+
+    input.focus();
+  };
+}
+
+function Input(city) {
+  this.city = city;
+
+  this.handleEvent = () => {
+    const { input, cancel } = this.city;
+
+    this.city.updateTape(listCity);
+
+    if (input.value !== '') {
+      cancel.classList.remove('city__cancel_invisible');
+    } else {
+      cancel.classList.add('city__cancel_invisible');
+    }
+  };
+}
+
+function Clear(city) {
+  this.city = city;
+
+  this.handleEvent = () => {
+    const { input, cancel } = this.city;
+
+    input.value = '';
+    input.focus();
+
+    this.city.updateTape(listCity);
+
+    cancel.classList.add('city__cancel_invisible');
+  };
 }
 
 function stop(event) {
   event.stopPropagation();
+}
+
+function prevent(event) {
+  event.preventDefault();
 }
 
 Array.from(document.querySelectorAll('.js-city'))

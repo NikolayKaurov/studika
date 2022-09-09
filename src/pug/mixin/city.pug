@@ -4,8 +4,9 @@ mixin city
     .city__down.js-city__down
       .city__search
         input.city__input.js-city__input(type="text" placeholder="Регион, город, населённый пункт")
-        button.city__cancel.js-city__cancel(type="button" tabindex="-1")
+        button.city__cancel.js-city__cancel.city__cancel_invisible(type="button" tabindex="-1")
       .city__select.js-city__select
+        .city__thumb.js-city__thumb
       .city__list.js-city__list
       button.city__submit.js-city__submit(type="submit" tabindex="-1") сохранить
 

@@ -1,8 +1,10 @@
 .city {
   $root: &;
   $animation-duration: 300ms;
+  $list-min-height: 64px; // duplicated in js
 
   position: relative;
+  user-select: none;
 
   &_open {
     #{$root}__down {
@@ -16,7 +18,6 @@
     display: flex;
     align-items: center;
     cursor: pointer;
-    user-select: none;
 
     &::before {
       content: '\e901';
@@ -50,6 +51,7 @@
 
   &__search {
     position: relative;
+    margin-bottom: 8px;
   }
 
   &__input {
@@ -82,6 +84,10 @@
       transform: translateY(-50%) scale(80%);
     }
 
+    &_invisible {
+      display: none;
+    }
+
     &::before {
       content: '\e902';
       position: absolute;
@@ -109,9 +115,57 @@
     }
   }
 
+  &__thumb {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background: transparent;
+    pointer-events: none;
+    width: 100%;
+    z-index: 1;
+    transform: translateY(0%);
+
+    &::before {
+      content: '';
+      position: absolute;
+      right: 0;
+      width: 8px;
+      height: $list-min-height;
+      background: #d8d8d8;
+      opacity: 0;
+      box-sizing: border-box;
+      border-radius: 8px;
+      border: 2px solid transparent;
+      background-clip: content-box;
+      pointer-events: auto;
+      transition: width $animation-duration, opacity $animation-duration;
+      touch-action: none;
+    }
+
+    &_visible {
+      &::before {
+        opacity: 0.5;
+      }
+    }
+
+    &:hover {
+      &::before {
+        opacity: 1;
+        width: 12px;
+      }
+    }
+
+    &_draggable {
+      &::before {
+        opacity: 1;
+        width: 12px;
+      }
+    }
+  }
+
   &__list {
     overflow-y: scroll;
-    min-height: 64px;
+    min-height: $list-min-height;
     max-height: 224px;
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -125,6 +179,11 @@
       display: flex;
       flex-direction: column;
       padding: 11px 16px;
+      cursor: pointer;
+
+      &:hover {
+        background-color: #f1f1f1;
+      }
 
       &-region {
         color: #767676;
@@ -137,6 +196,10 @@
   &__tape {
     display: flex;
     flex-direction: column;
+  }
+
+  &__key {
+    color: #0656b4;
   }
 
   &__submit {
@@ -155,8 +218,8 @@
     text-align: center;
     cursor: pointer;
     border: 0;
-    user-select: none;
     position: relative;
+    margin-top: 8px;
 
     &:active {
       font-size: 10px;
@@ -166,7 +229,7 @@
       content: '';
       position: absolute;
       left: 0;
-      bottom: 100%;
+      bottom: calc(100% + 8px);
       height: 16px;
       width: 100%;
       background: linear-gradient(0deg, rgba(251 251 251 / 100%) 0%, rgba(251 251 251 / 0%) 100%);
