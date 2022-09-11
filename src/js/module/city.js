@@ -1,6 +1,4 @@
-const defaultCity = 'Москва';
-
-const listMinHeight = 64; // duplicated in css
+const thumbHeight = 64; // duplicated in css
 
 const listCity = [
   {
@@ -224,6 +222,8 @@ class City {
 
   cancel;
 
+  selectWrapper;
+
   list;
 
   tape;
@@ -231,6 +231,8 @@ class City {
   thumb;
 
   dragData;
+
+  selectedCities;
 
   constructor(wrapper) {
     this.wrapper = wrapper;
@@ -241,11 +243,10 @@ class City {
     this.down = this.wrapper.querySelector('.js-city__down');
     this.input = this.wrapper.querySelector('.js-city__input');
     this.cancel = this.wrapper.querySelector('.js-city__cancel');
+    this.selectWrapper = this.wrapper.querySelector('.js-city__select-wrapper');
     this.list = this.wrapper.querySelector('.js-city__list');
     this.thumb = this.wrapper.querySelector('.js-city__thumb');
     this.dragData = {};
-
-    this.drop.innerText = defaultCity;
 
     const open = new Open(this);
     const scroll = new Scroll(this);
@@ -254,18 +255,28 @@ class City {
     const startDrag = new StartDrag(this);
     const input = new Input(this);
     const clear = new Clear(this);
+    const submit = new Submit(this);
+    const handleListMousedown = new HandleListMousedown(this);
+    const handleSelectMousedown = new HandleSelectMousedown(this);
 
-    this.wrapper.addEventListener('click', open);
+    this.wrapper.addEventListener('mousedown', open);
     this.wrapper.addEventListener('focusin', open);
-    this.down.addEventListener('click', stop);
+    this.down.addEventListener('mousedown', stop);
+    this.down.addEventListener('submit', submit);
+    this.selectWrapper.addEventListener('mousedown', handleSelectMousedown);
     this.list.addEventListener('scroll', scroll);
     this.list.addEventListener('mouseover', showThumb);
     this.list.addEventListener('mouseout', hideThumb);
+    this.list.addEventListener('mousedown', handleListMousedown);
     this.thumb.addEventListener('mousedown', startDrag);
     this.thumb.addEventListener('pointerdown', startDrag);
     this.thumb.addEventListener('dragstart', prevent);
     this.input.addEventListener('input', input);
     this.cancel.addEventListener('click', clear);
+
+    this.selectedCities = [];
+
+    this.updateCity();
   }
 
   updateTape(list) {
@@ -283,6 +294,7 @@ class City {
 
       const listItem = document.createElement('div');
       listItem.classList.add('city__list-item', 'js-city__list-item');
+      listItem.setAttribute('data-city', item.name);
 
       const name = document.createElement('span');
       name.classList.add('city__list-item-name', 'js-city__list-item-name');
@@ -306,7 +318,44 @@ class City {
     this.list.innerHTML = '';
     this.list.appendChild(tape);
 
-    this.thumb.style.height = `${this.list.offsetHeight - listMinHeight}px`;
+    if (tape.offsetHeight > this.list.offsetHeight) {
+      this.thumb.classList.remove('city__thumb_invisible');
+    } else {
+      this.thumb.classList.add('city__thumb_invisible');
+    }
+
+    this.thumb.style.height = `${this.list.offsetHeight - thumbHeight}px`;
+  }
+
+  updateCity() {
+    const old = this.selectWrapper.querySelector('.js-city__select');
+    if (old !== null) {
+      old.remove();
+    }
+
+    if (this.selectedCities.length > 0) {
+      this.drop.querySelector('.js-city__drop-content').remove();
+
+      const dropContent = document.createElement('span');
+      dropContent.classList.add('city__drop-content', 'js-city__drop-content');
+      dropContent.innerText = this.selectedCities.join(', ');
+
+      this.drop.appendChild(dropContent);
+
+      const select = document.createElement('div');
+      select.classList.add('city__select', 'js-city__select');
+
+      this.selectedCities.forEach((selectedCity) => {
+        const chosen = document.createElement('div');
+        chosen.classList.add('city__chosen', 'js-city__chosen');
+        chosen.innerText = selectedCity;
+        select.appendChild(chosen);
+      });
+
+      this.selectWrapper.appendChild(select);
+    } else {
+      this.drop.innerHTML = '<span class="city__drop-content js-city__drop-content">Любой регион</span>';
+    }
   }
 }
 
@@ -318,15 +367,16 @@ function Open(city) {
 
     this.city.updateTape(listCity);
 
-    wrapper.removeEventListener('click', this);
+    wrapper.removeEventListener('mousedown', this);
     wrapper.removeEventListener('focusin', this);
 
     wrapper.classList.add('city_open', 'city_just-now-open');
 
     const close = new Close(this.city);
 
-    document.addEventListener('click', close);
+    document.addEventListener('mousedown', close);
     document.addEventListener('focusin', close);
+    document.addEventListener('submit', close);
   };
 }
 
@@ -346,8 +396,9 @@ function Close(city) {
       return;
     }
 
-    document.removeEventListener('click', this);
+    document.removeEventListener('mousedown', this);
     document.removeEventListener('focusin', this);
+    document.removeEventListener('submit', this);
 
     wrapper.classList.remove('city_open');
 
@@ -355,7 +406,7 @@ function Close(city) {
 
     const open = new Open(this.city);
 
-    wrapper.addEventListener('click', open);
+    wrapper.addEventListener('mousedown', open);
     wrapper.addEventListener('focusin', open);
   };
 }
@@ -502,6 +553,58 @@ function Clear(city) {
     this.city.updateTape(listCity);
 
     cancel.classList.add('city__cancel_invisible');
+  };
+}
+
+function HandleListMousedown(city) {
+  this.city = city;
+
+  this.handleEvent = (event) => {
+    const { selectedCities } = this.city;
+
+    const name = event.target.closest('.js-city__list-item').getAttribute('data-city');
+
+    const index = selectedCities.indexOf(name);
+
+    if (index > -1) {
+      selectedCities.splice(index, 1);
+    } else {
+      selectedCities.push(name);
+    }
+
+    this.city.updateCity();
+  };
+}
+
+function HandleSelectMousedown(city) {
+  this.city = city;
+
+  this.handleEvent = (event) => {
+    if (!event.target.classList.contains('js-city__chosen')) {
+      return;
+    }
+
+    const { selectedCities } = this.city;
+
+    const name = event.target.innerText;
+
+    const index = selectedCities.indexOf(name);
+
+    if (index > -1) {
+      selectedCities.splice(index, 1);
+    } else {
+      selectedCities.push(name);
+    }
+
+    this.city.updateCity();
+  };
+}
+
+function Submit(city) {
+  this.city = city;
+
+  this.handleEvent = (event) => {
+    event.preventDefault();
   };
 }
 

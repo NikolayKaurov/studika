@@ -12,10 +12,10 @@
 @font-face {
   font-family: formular;
   src:
-          url('../font/formular.woff2') format('woff2'),
-          url('../font/formular.woff') format('woff'),
-          url('../font/formular.ttf') format('ttf'),
-          url('../font/formular.eot') format('eot');
+    url('../font/formular.woff2') format('woff2'),
+    url('../font/formular.woff') format('woff'),
+    url('../font/formular.ttf') format('ttf'),
+    url('../font/formular.eot') format('eot');
   font-weight: 400;
   font-style: normal;
 }
@@ -23,10 +23,10 @@
 @font-face {
   font-family: formular;
   src:
-          url('../font/formular-medium.woff2') format('woff2'),
-          url('../font/formular-medium.woff') format('woff'),
-          url('../font/formular-medium.ttf') format('ttf'),
-          url('../font/formular-medium.eot') format('eot');
+    url('../font/formular-medium.woff2') format('woff2'),
+    url('../font/formular-medium.woff') format('woff'),
+    url('../font/formular-medium.ttf') format('ttf'),
+    url('../font/formular-medium.eot') format('eot');
   font-weight: 500;
   font-style: normal;
 }
@@ -53,10 +53,4 @@ html {
 
 body {
   margin: 0;
-
-  // temp
-  height: 150vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
